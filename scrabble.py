@@ -108,6 +108,7 @@ def display_board():
 def play_word(rack, is_computer=False):
     display_board()
     if is_computer:
+        print(f"Computer's rack: {rack}")
         word = "".join(random.sample(rack, random.randint(1, 3)))
         row, col, direction = random.randint(0, 14), random.randint(0, 14), random.choice(['H', 'V'])
     else:
