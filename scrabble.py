@@ -1,4 +1,12 @@
 import random
+from collections import Counter 
+
+def load_dictionary(file_path):
+    with open(file_path, 'r') as file:
+        words = file.read().splitlines()
+    return [word.upper() for word in words]
+
+dictionary = load_dictionary('dictionary.txt')
 
 board = [[" " for _ in range(15)] for _ in range(15)]
 special_tiles = {
@@ -14,8 +22,9 @@ special_tiles = {
     (13, 9): " TL ", (13, 13): " DW ", (14, 0): " TW ", (14, 3): " DL", (14, 7): " TW ", (14, 11): " DL ", 
     (14, 14): " TW "
 }
-for pos, tile in special_tiles.items():
-    board[pos[0]][pos[1]] = tile
+
+for (row, col), tile in special_tiles.items():
+    board[row][col] = tile
 
 letter_points = {
     'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1,
@@ -58,12 +67,23 @@ def display_board():
 
     print(board_str)
 
+def can_form_word(word, rack):
+    rack_counter = Counter(rack)
+    word_counter = Counter(word)
+    for letter, count in word_counter.items():
+        if rack_counter[letter] < count:
+            return False
+    return True
 
 def play_word(rack, is_computer=False):
     display_board()
     if is_computer:
         print(f"Computer's rack: {rack}")
-        word = "".join(random.sample(rack, random.randint(1, 7)))
+        valid_words = [word for word in dictionary if can_form_word(word, rack)]
+        if not valid_words:
+            print("Computer has no valid words.")
+            return 0
+        word = random.choice(valid_words)
         row, col, direction = random.randint(0, 14), random.randint(0, 14), random.choice(['H', 'V'])
     else:
         print(f"Your rack: {rack}")
