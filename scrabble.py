@@ -1,6 +1,9 @@
 import random
 from collections import Counter 
 
+print("WELCOME TO SCRABBLE, GOOD LUCK")
+
+
 def load_dictionary(file_path):
     with open(file_path, 'r') as file:
         words = file.read().splitlines()
@@ -92,7 +95,7 @@ def play_word(rack, is_computer=False):
         col = int(input("Enter the column number (0-14): ").strip())
         direction = input("Enter direction (H for horizontal, V for vertical): ").strip().upper()
 
-    if all(letter in rack for letter in word):
+    if can_form_word(word, rack):
         if direction == 'H' and col + len(word) <= 15:
             for i, letter in enumerate(word):
                 board[row][col + i] = letter
@@ -136,8 +139,8 @@ def game_loop():
             break
     
     if player_score > computer_score:
-        print("THE PLAYER WINS!")
+        print("YOU WIN! A HUGE CONGRATULATIONS!")
     else:
-        print("THE COMPUTER WINS!")
+        print("THE COMPUTER WINS! TRY BETTER NEXT TIME FOR REAL :0 !")
 
 game_loop()
