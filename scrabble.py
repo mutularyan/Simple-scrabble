@@ -1,67 +1,21 @@
 import random
 
 board = [[" " for _ in range(15)] for _ in range(15)]
-board[7][7] = "  X "
-board[0][0] = " TW "
-board[0][3] = " DL "
-board[0][7] = " TW "
-board[0][11] = " DL "
-board[0][14] = " TW " 
-board[1][1] = " DW "
-board[1][5] = " TL "
-board[1][9] = " TL "
-board[1][13] = " DW "
-board[2][2] = " DW "
-board[2][6] = " DL"
-board[2][8] = " DL " 
-board[2][12] = " DW "
-board[3][0] = " DL "
-board[3][3] = " DW "
-board[3][7] = " DL "
-board[3][11] = " DW "
-board[3][14] = " DL "
-board[4][4] = " DW " 
-board[4][10] = " DW "
-board[5][1] = " TL "
-board[5][5] = " TL "
-board[5][9] = " TL "
-board[5][13] = " TL "
-board[6][2] = " DL"
-board[6][6] = " DL " 
-board[6][8] = " DL "
-board[6][12] = " DL "
-board[7][0] = " TW "
-board[7][3] = " DL "
-board[7][11] = " DL "
-board[7][14] = " TW "
-board[8][2] = " DL " 
-board[8][6] = " DL "
-board[8][8] = " DL "
-board[8][12] = " DL "
-board[9][1] = " TL "
-board[9][5] = " TL "
-board[9][9] = " TL"
-board[9][13] = " TL " 
-board[10][4] = " DW "
-board[10][10] = " DW "
-board[11][0] = " DL "
-board[11][3] = " DW "
-board[11][7] = " DL "
-board[11][11] = " DW "
-board[11][14] = " DL " 
-board[12][2] = " DW "
-board[12][6] = " DL "
-board[12][8] = " DL "
-board[12][12] = " DW "
-board[13][1] = " DW "
-board[13][5] = " TL"
-board[13][9] = " TL " 
-board[13][13] = " DW "
-board[14][0] = " TW "
-board[14][3] = " DL"
-board[14][7] = " TW " 
-board[14][11] = " DL "
-board[14][14] = " TW "
+special_tiles = {
+    (7, 7): "  X ", (0, 0): " TW ", (0, 3): " DL ", (0, 7): " TW ", (0, 11): " DL ", (0, 14): " TW ",
+    (1, 1): " DW ", (1, 5): " TL ", (1, 9): " TL ", (1, 13): " DW ", (2, 2): " DW ", (2, 6): " DL", 
+    (2, 8): " DL ", (2, 12): " DW ", (3, 0): " DL ", (3, 3): " DW ", (3, 7): " DL ", (3, 11): " DW ", 
+    (3, 14): " DL ", (4, 4): " DW ", (4, 10): " DW ", (5, 1): " TL ", (5, 5): " TL ", (5, 9): " TL ", 
+    (5, 13): " TL ", (6, 2): " DL", (6, 6): " DL ", (6, 8): " DL ", (6, 12): " DL ", (7, 0): " TW ", 
+    (7, 3): " DL ", (7, 11): " DL ", (7, 14): " TW ", (8, 2): " DL ", (8, 6): " DL ", (8, 8): " DL ", 
+    (8, 12): " DL ", (9, 1): " TL ", (9, 5): " TL ", (9, 9): " TL", (9, 13): " TL ", (10, 4): " DW ", 
+    (10, 10): " DW ", (11, 0): " DL ", (11, 3): " DW ", (11, 7): " DL ", (11, 11): " DW ", (11, 14): " DL ", 
+    (12, 2): " DW ", (12, 6): " DL ", (12, 8): " DL ", (12, 12): " DW ", (13, 1): " DW ", (13, 5): " TL", 
+    (13, 9): " TL ", (13, 13): " DW ", (14, 0): " TW ", (14, 3): " DL", (14, 7): " TW ", (14, 11): " DL ", 
+    (14, 14): " TW "
+}
+for pos, tile in special_tiles.items():
+    board[pos[0]][pos[1]] = tile
 
 letter_points = {
     'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1,
