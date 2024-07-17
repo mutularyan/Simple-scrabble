@@ -5,7 +5,7 @@ import APPCONTEXT from '../../Context/AppContext.JSX';
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
     const { setUser, setToken } = useContext(APPCONTEXT);
@@ -13,13 +13,13 @@ function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Form submitted:', { name, password });
+        console.log('Form submitted:', { email, password });
 
         axios({
             method: "POST",
             url: "http://127.0.0.1:9000/login", 
             data: {
-              name: name,
+              email: email,
               password: password,
             },
           })
@@ -41,13 +41,13 @@ function Login() {
             <h1>Login</h1>
             <form onSubmit={handleSubmit}>
                 <div className="form-class">
-                    <label htmlFor="name">User Name:</label>
+                    <label htmlFor="email">Email:</label>
                     <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                     />
                 </div>
