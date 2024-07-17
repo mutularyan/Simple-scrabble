@@ -16,7 +16,7 @@ function Signup() {
         
         axios({
             method: "POST",
-            url: "http://127.0.0.1:9000/signup", // change this to our backend link
+            url: "http://127.0.0.1:9000/signup", 
             data: {
               name: name,
               email: email,
