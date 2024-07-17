@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from config import Config
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from models import db, Member, Game  # Ensures correct import order
+from models import db, Member, Game 
 from game_engine import create_board
 import json
 
@@ -20,6 +20,10 @@ def create_app():
     bcrypt.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)   
+
+    from game_route import game_blueprint
+    app.register_blueprint(game_blueprint)
+
     return app
 
 app = create_app()
@@ -95,13 +99,6 @@ def login():
         game = Game(member_id=member_id, board=board)
         db.session.add(game)
         db.session.commit()
-
-@app.route("/game/board", methods=["GET"])
-@jwt_required()
-def get_board():
-    current_user = get_jwt_identity()
-    print(current_user)
-    return jsonify({'message': f"Hi this is your board"})
 
 
 #get board

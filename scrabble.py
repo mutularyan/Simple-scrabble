@@ -8,7 +8,7 @@ def load_dictionary(file_path):
         words = file.read().splitlines()
     return [word.upper() for word in words]
 
-dictionary = load_dictionary('dictionary.txt')
+dictionary = load_dictionary(r'C:\Users\LENOVO\Desktop\Simple scrabble project\Simple-scrabble\dictionary.txt')
 
 board = [[" " for _ in range(15)] for _ in range(15)]
 special_tiles = {
