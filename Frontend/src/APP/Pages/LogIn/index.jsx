@@ -17,7 +17,7 @@ function Login() {
 
         axios({
             method: "POST",
-            url: "http://127.0.0.1:9000/login", // change this to our backend link
+            url: "http://127.0.0.1:9000/login", 
             data: {
               name: name,
               password: password,
