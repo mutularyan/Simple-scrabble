@@ -4,7 +4,9 @@ from flask_migrate import Migrate
 from config import Config
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from models import db, Member  # Ensures correct import order
+from models import db, Member, Game  # Ensures correct import order
+from game_engine import create_board
+import json
 
 # Initialize Flask extensions
 bcrypt = Bcrypt()
@@ -17,10 +19,13 @@ def create_app():
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db)   
     return app
 
 app = create_app()
+
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def sam():
@@ -29,18 +34,18 @@ def sam():
 @app.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json()
-    alias = data.get('alias')
+    user_name = data.get('user_name')
     email = data.get('email')
     password = data.get('password')
 
     # Validation
-    if not email or not password or not alias:
+    if not email or not password or not user_name:
         return jsonify({'message': "Required field missing"}), 400
 
     if len(email) < 4:
         return jsonify({'message': "Email too short"}), 400
 
-    if len(alias) < 4:
+    if len(user_name) < 4:
         return jsonify({'message': "Name too short"}), 400
 
     if len(password) < 4:
@@ -53,7 +58,7 @@ def signup():
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf8')  # decoded to store the password in the database
 
-    member = Member(alias=alias, email=email, password=hashed_password)
+    member = Member(user_name=user_name, email=email, password=hashed_password)
     db.session.add(member)
     db.session.commit()
     return jsonify({"message": "Account created successfully"}), 201
@@ -70,17 +75,26 @@ def login():
 
     user = Member.query.filter_by(email=email).first()
 
+    print(user.game)
+
     if not user:
         return jsonify({'message': "User not found"}), 400
 
     pass_ok = bcrypt.check_password_hash(user.password.encode('utf-8'),password)
     
-    
     # ACCESS TOKEN
     access_token = create_access_token(identity=user.email)
     if not pass_ok:
         return jsonify({'message': "Invalid password"}), 401
-    return jsonify({'user': {'alias': user.alias, 'email': user.email}, 'token': access_token})
+    return jsonify({'user': {'user_name': user.user_name, 'email': user.email}, 'token': access_token})
+
+    if not user.game:
+        member_id = user.id
+        board = json.dumps(create_board())
+        print(board)
+        game = Game(member_id=member_id, board=board)
+        db.session.add(game)
+        db.session.commit()
 
 @app.route("/game/board", methods=["GET"])
 @jwt_required()
