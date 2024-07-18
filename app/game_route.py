@@ -87,30 +87,6 @@ def make_move():
 
     return jsonify({'board': display_board(board), "message": "Move made successfully"})
 
-@game_blueprint.route("/game/possible-moves", methods=["GET"])
-@jwt_required()
-def possible_moves():
-    current_user = get_jwt_identity()
-    game = Game.query.filter_by(member_id=current_user['id']).first()
-    if not game:
-        return jsonify({'message': "Game not found"}), 400
-
-    board = json.loads(game.board)
-    player_rack = json.loads(game.player_rack)
-
-    possible_moves = []
-
-    for word in dictionary:
-        if can_form_word(word, player_rack):
-            for row in range(15):
-                for col in range(15):
-                    if col + len(word) <= 15 and all(board[row][col + i] in [" ", word[i]] for i in range(len(word))):
-                        possible_moves.append({"word": word, "row": row, "col": col, "direction": "H"})
-                    if row + len(word) <= 15 and all(board[row + i][col] in [" ", word[i]] for i in range(len(word))):
-                        possible_moves.append({"word": word, "row": row, "col": col, "direction": "V"})
-
-    return jsonify({'possible_moves': possible_moves}), 200
-
 
 
 @game_blueprint.route("/game/new-game", methods=["POST"])
