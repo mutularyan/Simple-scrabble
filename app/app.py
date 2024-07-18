@@ -9,7 +9,7 @@ from game_engine import create_board
 import json
 from flask_cors import CORS
 
-# Initialize Flask extensions
+
 bcrypt = Bcrypt()
 migrate = Migrate()
 jwt = JWTManager()
@@ -44,7 +44,7 @@ def signup():
     email = data.get('email')
     password = data.get('password')
 
-    # Validation
+    
     if not email or not password or not user_name:
         return jsonify({'message': "Required field missing"}), 400
 
