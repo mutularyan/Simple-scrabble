@@ -63,33 +63,66 @@ def get_rack():
 
 @game_blueprint.route("/game/make_move", methods=["PUT"])
 @jwt_required()
-def human_move():
+def make_move():
+    body = request.get_json()
+    word = body.get("word")
+    row = body.get("row")
+    col = body.get("col")
+    direction = body.get("direction").upper()
+
+    if not word or row is None or col is None or not direction:
+        return jsonify({"message": "Required fields missing"}), 400
+
     current_user = get_jwt_identity()
-    game = Game.query.filter_by(member_id=current_user['member_id']).first()
-
+    game = Game.query.filter_by(member_id=current_user['id']).first()
     if not game:
-        return jsonify({'message': 'Game does not exist'}), 404
-
-    request_data = request.get_json()
-    if not request_data or 'board' not in request_data or 'word' not in request_data or 'position' not in request_data or 'direction' not in request_data:
-        return jsonify({'message': 'Invalid request data'}), 400
-
-    direction = request_data['direction']
-    position = request_data['position']
-    x = to_int(position.get('x'))
-    y = to_int(position.get('y'))
-    word = request_data['word']
-
-    if x is None or y is None or not word or direction not in ["right", "down"]:
-        return jsonify({'message': "Invalid Input"}), 400
-    
-
+        return jsonify({'message': "Game not found"}), 400
 
     board = json.loads(game.board)
-    new_board = Board()
-    new_board.board = board
+    player_rack = json.loads(game.player_rack)
 
-    return jsonify({'message': f"Hi {current_user['username']} this is your board", 'board': new_board.board}), 200
+    if not can_form_word(word, player_rack):
+        return jsonify({"message": "Invalid move: word cannot be formed from your rack"}), 400
 
+    valid_move = True
+    if direction == 'H':
+        if col + len(word) > 15:
+            valid_move = False
+        for i, letter in enumerate(word):
+            if board[row][col + i] not in [" ", letter]:
+                valid_move = False
+                break
+    elif direction == 'V':
+        if row + len(word) > 15:
+            valid_move = False
+        for i, letter in enumerate(word):
+            if board[row + i][col] not in [" ", letter]:
+                valid_move = False
+                break
+    else:
+        return jsonify({"message": "Invalid direction"}), 400
 
+    if not valid_move:
+        return jsonify({"message": "Invalid move: word cannot be placed on the board"}), 400
+
+    if direction == 'H':
+        for i, letter in enumerate(word):
+            board[row][col + i] = letter
+            player_rack.remove(letter)
+    elif direction == 'V':
+        for i, letter in enumerate(word):
+            board[row + i][col] = letter
+            player_rack.remove(letter)
+
+    
+    letter_bag = json.loads(game.tile_bag)
+    draw_tiles(player_rack, letter_bag)
+
+    
+    game.board = json.dumps(board)
+    game.player_rack = json.dumps(player_rack)
+    game.tile_bag = json.dumps(letter_bag)
+    db.session.commit()
+
+    return jsonify({'board': display_board(board), "message": "Move made successfully"})
 
