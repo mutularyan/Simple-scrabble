@@ -126,3 +126,67 @@ def make_move():
 
     return jsonify({'board': display_board(board), "message": "Move made successfully"})
 
+@game_blueprint.route("/game/possible-moves", methods=["GET"])
+@jwt_required()
+def possible_moves():
+    current_user = get_jwt_identity()
+    game = Game.query.filter_by(member_id=current_user['id']).first()
+    if not game:
+        return jsonify({'message': "Game not found"}), 400
+
+    board = json.loads(game.board)
+    player_rack = json.loads(game.player_rack)
+
+    possible_moves = []
+
+    for word in dictionary:
+        if can_form_word(word, player_rack):
+            for row in range(15):
+                for col in range(15):
+                    if col + len(word) <= 15 and all(board[row][col + i] in [" ", word[i]] for i in range(len(word))):
+                        possible_moves.append({"word": word, "row": row, "col": col, "direction": "H"})
+                    if row + len(word) <= 15 and all(board[row + i][col] in [" ", word[i]] for i in range(len(word))):
+                        possible_moves.append({"word": word, "row": row, "col": col, "direction": "V"})
+
+    return jsonify({'possible_moves': possible_moves}), 200
+
+
+
+@game_blueprint.route("/game/new-game", methods=["POST"])
+@jwt_required()
+def new_game():
+    current_user = get_jwt_identity()
+    game = Game.query.filter_by(member_id=current_user['id']).first()
+    if game:
+        return jsonify({'message': "Game already exists"}), 400
+
+   
+    board = create_board()
+
+    
+    letter_bag = []
+    for letter, count in letter_no.items():
+        letter_bag.extend([letter] * count)
+    random.shuffle(letter_bag)
+    player_rack = [letter_bag.pop() for _ in range(7)]
+
+   
+    board_json = json.dumps(board)
+    tile_bag_json = json.dumps(letter_bag)
+    player_rack_json = json.dumps(player_rack)
+
+    
+    game = Game(
+        member_id=current_user['id'],
+        board=board_json,
+        tile_bag=tile_bag_json,
+        player_rack=player_rack_json
+    )
+
+    db.session.add(game)
+    db.session.commit()
+
+    return jsonify({'message': "New game created", 'board': board, 'player_rack': player_rack})
+
+
+
