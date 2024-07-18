@@ -1,121 +1,85 @@
+import React from 'react';
 
-import React, { useContext } from "react";
-import axios from "axios";
-import APPCONTEXT from "../../../Context/APPCONTEXT";
+const styles = {
+  boardContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: '30px',  
+  },
+  board: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  row: {
+    display: 'flex',
+  },
+  tile: {
+    width: '30px',  
+    height: '30px', 
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px solid #000',
+    fontSize: '14px',
+    fontWeight: 'bold',
+  }
+};
+
+const scrabbleColors = [
+  ["#ff0000", "#fff", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#ff0000", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#fff", "#ff0000"],
+  ["#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#0000ff", "#fff", "#fff", "#fff", "#0000ff", "#fff", "#fff", "#fff", "#ffb6c1", "#fff"],
+  ["#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#ffb6c1", "#fff", "#fff"],
+  ["#add8e6", "#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#add8e6"],
+  ["#fff", "#fff", "#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#fff"],
+  ["#fff", "#0000ff", "#fff", "#fff", "#fff", "#0000ff", "#fff", "#fff", "#fff", "#0000ff", "#fff", "#fff", "#fff", "#0000ff", "#fff"],
+  ["#fff", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#fff"],
+  ["#ff0000", "#fff", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#fff", "#ff0000"],
+  ["#fff", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#fff"],
+  ["#fff", "#0000ff", "#fff", "#fff", "#fff", "#0000ff", "#fff", "#fff", "#fff", "#0000ff", "#fff", "#fff", "#fff", "#0000ff", "#fff"],
+  ["#fff", "#fff", "#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#fff"],
+  ["#add8e6", "#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#add8e6"],
+  ["#fff", "#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#ffb6c1", "#fff", "#fff"],
+  ["#fff", "#ffb6c1", "#fff", "#fff", "#fff", "#0000ff", "#fff", "#fff", "#fff", "#0000ff", "#fff", "#fff", "#fff", "#ffb6c1", "#fff"],
+  ["#ff0000", "#fff", "#fff", "#add8e6", "#fff", "#fff", "#fff", "#ff0000", "#fff", "#fff", "#fff", "#add8e6", "#fff", "#fff", "#ff0000"]
+];
 
 function Board(props) {
-  const { board = [], setBoard = () => {}, getBoard = () => {} } = props;
+  const { board = [] } = props;
 
   return (
-    <div>
-      {board.map((row, i) => (
-        <Row key={i} r={i} row={row} setBoard={setBoard} getBoard={getBoard} />
-      ))}
+    <div style={styles.boardContainer}>
+      <div style={styles.board}>
+        {board.map((row, i) => {
+          return <Row key={i} row={row} rowIndex={i} />;
+        })}
+      </div>
     </div>
   );
 }
 
 function Row(props) {
-  const { row = [], r = 0, setBoard = () => {}, getBoard = () => {} } = props;
-  const { token } = useContext(APPCONTEXT);
-
-  const handleTileClick = (tile, r, c) => {
-    console.log(tile, r, c);
-
-    if (tile.special === "X") {
-      axios({
-        method: "PUT",
-        url: "http://127.0.0.1:9000/game/make-move",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        data: {
-          y: r,
-          x: c,
-        },
-      }).then((res) => {
-        getBoard();
-      });
-      return;
-    }
-
-    axios({
-      method: "GET",
-      url: "http://127.0.0.1:9000/game/possible-moves",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (res?.data?.board) {
-          setBoard(res?.data?.board);
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  };
+  const { row = [], rowIndex } = props;
 
   return (
-    <div style={{ display: "flex" }}>
-      {row.map((tile, colIndex) => {
-        const { letter, special } = tile;
-
-        let backgroundColor = "#ffffff";
-        let color = "#000000";
-
-        
-        switch (special) {
-          case "TW":
-            backgroundColor = "#ff9800"; 
-            break;
-          case "DW":
-            backgroundColor = "#f44336"; 
-            break;
-          case "TL":
-            backgroundColor = "#03a9f4"; 
-            break;
-          case "DL":
-            backgroundColor = "#4caf50"; 
-            break;
-          case "X":
-            backgroundColor = "#9e9e9e"; 
-            break;
-          default:
-            break;
+    <div style={styles.row}>
+      {row.map((col, i) => {
+        let tileStyle = { ...styles.tile, backgroundColor: "#fff" }; 
+        if (scrabbleColors[rowIndex] && scrabbleColors[rowIndex][i]) {
+          tileStyle.backgroundColor = scrabbleColors[rowIndex][i];
         }
 
         return (
-          <div
-            key={colIndex}
-            style={{
-              width: "40px",
-              height: "40px",
-              backgroundColor,
-              color,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              border: "1px solid #000",
-              cursor: "pointer",
-            }}
-            onClick={() => handleTileClick(tile, r, colIndex)}
+          <div 
+            className="tile" 
+            key={i} 
+            style={tileStyle}
           >
-            <Col value={letter} />
+            {col}
           </div>
         );
       })}
     </div>
-  );
-}
-
-function Col(props) {
-  const { value } = props;
-
-  return (
-    <span style={{ fontSize: "24px" }}>
-      {value}
-    </span>
   );
 }
 
