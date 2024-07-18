@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, Blueprint, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import Config
@@ -85,11 +85,15 @@ def login():
         return jsonify({'message': "User not found"}), 400
 
     pass_ok = bcrypt.check_password_hash(user.password.encode('utf-8'),password)
-    
-    # ACCESS TOKEN
-    access_token = create_access_token(identity=user.email)
+
     if not pass_ok:
-        return jsonify({'message': "Invalid password"}), 401
+        return jsonify({'message': "Invalid password"}), 401    
+    # ACCESS TOKEN
+    access_token = create_access_token(
+        identity = {"member_id": user.id, "user_name":user.user_name},
+        expires_delta=(expires - datetime.utcnow())
+    )
+
     return jsonify({'user': {'user_name': user.user_name, 'email': user.email}, 'token': access_token})
 
     if not user.game:

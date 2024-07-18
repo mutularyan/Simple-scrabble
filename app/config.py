@@ -1,7 +1,7 @@
 #DB Connection
 #Environmental variables
-
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 
 import os
 
@@ -17,5 +17,5 @@ conf={
 
 class Config:
     SQLALCHEMY_DATABASE_URI="postgresql://postgres.aomlxggghdbyzubwmrhw:zYsG4xfVQXdE4EVg@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
-    SQLALCHEMY_TRACK_MODIFICATIONS=False
+    JWT_ACCESS_TOKEN_EXPIRES=timedelta(hours=20)
     JWT_SECRET_KEY=os.getenv('jwt_secret_key')
