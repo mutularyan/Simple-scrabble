@@ -7,6 +7,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from models import db, Member, Game 
 from game_engine import create_board
 import json
+from flask_cors import CORS
 
 # Initialize Flask extensions
 bcrypt = Bcrypt()
@@ -27,6 +28,7 @@ def create_app():
     return app
 
 app = create_app()
+CORS(app)
 
 with app.app_context():
     db.create_all()
