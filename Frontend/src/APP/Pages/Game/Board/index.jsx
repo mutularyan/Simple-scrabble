@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 import React, { useContext } from "react";
 import axios from "axios";
 import APPCONTEXT from "../../../Context/APPCONTEXT";
