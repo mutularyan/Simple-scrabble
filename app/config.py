@@ -16,6 +16,6 @@ conf={
 }
 
 class Config:
-    SQLALCHEMY_DATABASE_URI="postgresql://postgres.aomlxggghdbyzubwmrhw:zYsG4xfVQXdE4EVg@aws-0-us-east-1.pooler.supabase.com:6543/postgres"
+    SQLALCHEMY_DATABASE_URI="postgresql://postgres.jkeawjjsznyhpleipfui:kasarani123!@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
     JWT_ACCESS_TOKEN_EXPIRES=timedelta(hours=20)
     JWT_SECRET_KEY=os.getenv('jwt_secret_key')
