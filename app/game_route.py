@@ -8,19 +8,52 @@ import random
 
 game_blueprint=Blueprint('game',__name__)
 
-
 @game_blueprint.route("/game/board", methods=["GET"])
 @jwt_required()
 def get_board():
     current_user = get_jwt_identity()
     print(current_user)
-    game = Game.query.filter_by(member_id=current_user['member_id']).first()
-    print(game)
-    if not game:
-       return jsonify({'message': 'Game does not exist'}), 404
-    board = json.loads(game.board)
-    return jsonify({'message': f"Hi, {current_user['user_name']} this is your board", 'board':board})
 
+    user_id = current_user['member_id']  
+    game = Game.query.filter_by(member_id=user_id).first()
+    print(game)
+    
+    if not game:
+        return jsonify({'message': 'Game not found'}), 400
+
+    letter_points = {
+    'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1,
+    'F': 4, 'G': 2, 'H': 4, 'I': 1, 'J': 8,
+    'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1,
+    'P': 3, 'Q': 10, 'R': 1, 'S': 1, 'T': 1,
+    'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4, 'Z': 10
+    }
+
+    letter_no = {
+        'A': 9, 'B': 2, 'C': 2, 'D': 4, 'E': 12,
+        'F': 2, 'G': 3, 'H': 2, 'I': 9, 'J': 1,
+        'K': 1, 'L': 4, 'M': 2, 'N': 6, 'O': 8,
+        'P': 2, 'Q': 1, 'R': 6, 'S': 4, 'T': 6,
+        'U': 4, 'V': 2, 'W': 2, 'X': 1, 'Y': 2, 'Z': 1
+    }
+    letter_bag = []
+    for letter, count in letter_no.items():
+        letter_bag.extend([letter] * count)
+    random.shuffle(letter_bag)
+    player_rack = []
+    for _ in range(7):
+        tile = letter_bag.pop()
+        player_rack.append(tile)
+
+    game.player_rack = json.dumps(player_rack)
+    db.session.commit()
+    return jsonify(
+        {
+        'message': f"Hi {current_user['user_name']} this is your board and your rack",
+        'board': json.loads(game.board),
+        'player_rack': player_rack
+        }
+    ), 400
 
 @game_blueprint.route("/game/make_move", methods=["PUT"])
 @jwt_required()
@@ -35,7 +68,7 @@ def make_move():
         return jsonify({"message": "Required fields missing"}), 400
 
     current_user = get_jwt_identity()
-    game = Game.query.filter_by(member_id=current_user['id']).first()
+    game = Game.query.filter_by(member_id=current_user['user_name']).first()
     if not game:
         return jsonify({'message': "Game not found"}), 400
 
@@ -78,40 +111,33 @@ def make_move():
     
     letter_bag = json.loads(game.tile_bag)
     draw_tiles(player_rack, letter_bag)
-
     
     game.board = json.dumps(board)
     game.player_rack = json.dumps(player_rack)
     game.tile_bag = json.dumps(letter_bag)
     db.session.commit()
 
-    return jsonify({'board': display_board(board), "message": "Move made successfully"})
-
-
+    return jsonify({'message': f"Hi {current_user['username']} this is your board", 'board': new_board.board, 'score': game.player_score}), 200
 
 @game_blueprint.route("/game/new-game", methods=["POST"])
 @jwt_required()
 def new_game():
     current_user = get_jwt_identity()
-    game = Game.query.filter_by(member_id=current_user['id']).first()
+    game = Game.query.filter_by(member_id=current_user['user_name']).first()
     if game:
         return jsonify({'message': "Game already exists"}), 400
-
    
     board = create_board()
 
-    
     letter_bag = []
     for letter, count in letter_no.items():
         letter_bag.extend([letter] * count)
     random.shuffle(letter_bag)
     player_rack = [letter_bag.pop() for _ in range(7)]
-
    
     board_json = json.dumps(board)
     tile_bag_json = json.dumps(letter_bag)
     player_rack_json = json.dumps(player_rack)
-
     
     game = Game(
         member_id=current_user['id'],
@@ -124,6 +150,4 @@ def new_game():
     db.session.commit()
 
     return jsonify({'message': "New game created", 'board': board, 'player_rack': player_rack})
-
-
 
