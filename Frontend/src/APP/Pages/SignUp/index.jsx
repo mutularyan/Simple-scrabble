@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Error from '../../Components/Error';
 
 function Signup() {
-    const [alias, setAlias] = useState('');
+    const [user_name, setUser_name] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
@@ -12,13 +12,13 @@ function Signup() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Form submitted:', { alias, email, password });
+        console.log('Form submitted:', { user_name, email, password });
         
         axios({
             method: "POST",
             url: "http://127.0.0.1:9000/signup", 
             data: {
-              alias: alias,
+              user_name: user_name,
               email: email,
               password: password,
             },
@@ -37,13 +37,13 @@ function Signup() {
             <h1>Sign Up</h1>
             <form onSubmit={handleSubmit}>
                 <div className="form-class">
-                    <label htmlFor="alias">Alias:</label>
+                    <label htmlFor="user_name">User_name:</label>
                     <input
                         type="text"
-                        id="alias"
-                        name="alias"
-                        value={alias}
-                        onChange={(e) => setAlias(e.target.value)}
+                        id="user_name"
+                        name="user_name"
+                        value={user_name}
+                        onChange={(e) => setUser_name(e.target.value)}
                         required
                     />
                 </div>
