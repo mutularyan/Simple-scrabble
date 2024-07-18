@@ -79,8 +79,6 @@ def login():
 
     user = Member.query.filter_by(email=email).first()
 
-    print(user.game)
-
     if not user:
         return jsonify({'message': "User not found"}), 400
 
@@ -90,11 +88,8 @@ def login():
         return jsonify({'message': "Invalid password"}), 401    
     # ACCESS TOKEN
     access_token = create_access_token(
-        identity = {"member_id": user.id, "user_name":user.user_name},
-        expires_delta=(expires - datetime.utcnow())
+        identity = {"member_id": user.id, "user_name":user.user_name}
     )
-
-    return jsonify({'user': {'user_name': user.user_name, 'email': user.email}, 'token': access_token})
 
     if not user.game:
         member_id = user.id
@@ -104,10 +99,7 @@ def login():
         db.session.add(game)
         db.session.commit()
 
-
-#get board
-#new game
-#make move
+    return jsonify({'user': {'user_name': user.user_name, 'email': user.email}, 'token': access_token})
 
 if __name__ == '__main__':
     app.run(debug=True, port=9000)
