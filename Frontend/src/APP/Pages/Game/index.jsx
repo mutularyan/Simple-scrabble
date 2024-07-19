@@ -50,7 +50,7 @@ function Game() {
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <Board board={board} />
+        <Board board={board} setBoard={setBoard} getboard={getboard} />
       </div>
     </div>
   );
