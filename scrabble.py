@@ -77,7 +77,30 @@ def can_form_word(word, rack):
             return False
     return True
 
-def play_word(rack, is_computer=False, is_first_word=False):
+def calculate_score(word, row, col, direction):
+    word_score = 1
+    score = 0
+    
+    for i, letter in enumerate(word):
+        current_row, current_col = (row, col + i) if direction == 'H' else (row + i, col)
+        letter_score = letter_points[letter]
+        
+        if (current_row, current_col) in special_tiles:
+            tile = special_tiles[(current_row, current_col)].strip()
+            if tile == "DL":
+                letter_score *= 2
+            elif tile == "TL":
+                letter_score *= 3
+            elif tile == "DW":
+                word_score *= 2
+            elif tile == "TW":
+                word_score *= 3
+
+        score += letter_score
+    
+    return score * word_score
+
+def play_word(rack, is_computer=False):
     display_board()
     if is_computer:
         print(f"Computer's rack: {rack}")
@@ -86,49 +109,32 @@ def play_word(rack, is_computer=False, is_first_word=False):
             print("Computer has no valid words.")
             return 0
         word = random.choice(valid_words)
-        while True:
-            row, col, direction = random.randint(0, 14), random.randint(0, 14), random.choice(['H', 'V'])
-            if direction == 'H' and col + len(word) <= 15:
-                if all(board[row][col + i] in [" ", word[i]] for i in range(len(word))):
-                    break
-            elif direction == 'V' and row + len(word) <= 15:
-                if all(board[row + i][col] in [" ", word[i]] for i in range(len(word))):
-                    break
+        row, col, direction = random.randint(0, 14), random.randint(0, 14), random.choice(['H', 'V'])
     else:
         print(f"Your rack: {rack}")
-        word = input("Enter the word you want to play(from your rack): ").strip().upper()
-        if is_first_word:
-            print("First move must be played from the center X!")
-            row, col, direction = int(input("Enter the row number (0-14): ").strip()), int(input("Enter the column number (0-14): ").strip()), input("Enter direction (H for horizontal, V for vertical): ").strip().upper()
-        else:
-            row = int(input("Enter the row number (0-14): ").strip())
-            col = int(input("Enter the column number (0-14): ").strip())
-            direction = input("Enter direction (H for horizontal, V for vertical): ").strip().upper()
+        word = input("Enter the word you want to play (from your rack): ").strip().upper()
+        row = int(input("Enter the row number (0-14): ").strip())
+        col = int(input("Enter the column number (0-14): ").strip())
+        direction = input("Enter direction (H for horizontal, V for vertical): ").strip().upper()
 
-    if can_form_word(word, rack):
+    if all(letter in rack for letter in word):
         if direction == 'H' and col + len(word) <= 15:
-            if is_first_word and (row != 7 or col > 7 or col + len(word) < 7):
-                print("\nInvalid first move, word must start from the center as repeated below!")
-                return 0
             for i, letter in enumerate(word):
                 board[row][col + i] = letter
                 rack.remove(letter)
         elif direction == 'V' and row + len(word) <= 15:
-            if is_first_word and (col != 7 or row > 7 or row + len(word) < 7):
-                print("\nInvalid first move, word must start from the center as repeated below!")
-                return 0
             for i, letter in enumerate(word):
                 board[row + i][col] = letter
                 rack.remove(letter)
         else:
-            print("\nInvalid move. Word does not fit on our board.")
+            print("Invalid move. Word does not fit on the board.")
             return 0
-
-        score = sum(letter_points[letter] for letter in word)
+        
+        score = calculate_score(word, row, col, direction)
         print(f"Word played: {word}, Score: {score}")
         return score
     else:
-        print("\nYou don't have the letters to play this word. Kindly try again")
+        print("You don't have the letters to play this word. Kindly try again.")
         return 0
 
 def draw_tiles(rack):
@@ -138,20 +144,6 @@ def draw_tiles(rack):
 def game_loop():
     player_score = 0
     computer_score = 0
-
-    print("Player's first turn")
-    while True:
-        player_score += play_word(player_rack, is_first_word=True)
-        if player_score > 0:
-            break
-        print("\nGAME MUST START FROM THE CENTER BOSS!")
-    
-
-    draw_tiles(player_rack)
-
-    print("\nComputer's first turn")
-    computer_score += play_word(computer_rack, is_computer=True)
-    draw_tiles(computer_rack)
 
     while letter_bag:
         print("\nPlayer's turn")
@@ -167,10 +159,10 @@ def game_loop():
 
         if not letter_bag:
             break
-
+    
     if player_score > computer_score:
         print("YOU WIN! A HUGE CONGRATULATIONS!")
     else:
-        print("THE COMPUTER WINS! TRY BETTER NEXT TIME FOR REAL :0 !")
+        print("THE COMPUTER WINS! TRY BETTER NEXT TIME!")
 
 game_loop()
