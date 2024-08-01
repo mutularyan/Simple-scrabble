@@ -51,14 +51,15 @@ def get_rack():
     for letter, count in letter_no.items():
         letter_bag.extend([letter] * count)
     random.shuffle(letter_bag)
+    
     player_rack = []
     for _ in range(7):
         tile = letter_bag.pop()
-        rack.append(tile)
+       player_rack.append(tile)
 
-    game.rack = json.dumps(rack)
+    game.rack = json.dumps(player_rack)
     db.session.commit()
-    return jsonify({'message': f"{current_user['user_name']} rack", 'rack': rack})
+    return jsonify({'message': f"{current_user['user_name']} rack", 'rack':player_rack})
 
 
 @game_blueprint.route("/game/make_move", methods=["PUT"])
